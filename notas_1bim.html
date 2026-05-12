@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teoria da Contabilidade — 1º Bimestre</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #0e1117;
+    --surface: #161b25;
+    --surface2: #1e2535;
+    --border: #2a3347;
+    --accent: #4f9cf9;
+    --accent3: #4fcea2;
+    --text: #e8edf5;
+    --muted: #8898b8;
+    --danger: #f95f5f;
+    --warn: #f9c84f;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(79,156,249,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(79,156,249,.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; }
+
+  header { margin-bottom: 2.5rem; }
+  .label {
+    font-family: 'DM Mono', monospace;
+    font-size: .7rem;
+    letter-spacing: .2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: .5rem;
+  }
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    line-height: 1.1;
+    margin-bottom: .4rem;
+  }
+  h1 em { font-style: italic; color: var(--accent); }
+  .subtitle { color: var(--muted); font-size: .9rem; }
+  .subtitle strong { color: var(--accent3); }
+
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem 1.4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--kpi-color, var(--accent));
+  }
+  .kpi-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    color: var(--kpi-color, var(--accent));
+    line-height: 1;
+    margin-bottom: .3rem;
+  }
+  .kpi-label { font-size: .73rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+
+  .charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+    margin-bottom: 2rem;
+  }
+  @media (max-width: 700px) { .charts-row { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+  }
+  .card-title {
+    font-family: 'DM Mono', monospace;
+    font-size: .68rem;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  canvas { width: 100% !important; }
+
+  .legend { display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:.8rem; }
+  .legend-item { display:flex; align-items:center; gap:.4rem; font-size:.72rem; color:var(--muted); }
+  .legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+
+  .dist-bar-wrap { display: flex; flex-direction: column; gap: .75rem; margin-top:.3rem; }
+  .dist-bar-item { display: flex; align-items: center; gap: .8rem; }
+  .dist-bar-item .range { width: 70px; color: var(--muted); font-family: 'DM Mono', monospace; font-size: .7rem; flex-shrink: 0; }
+  .dist-bar-item .bar-track { flex: 1; background: var(--surface2); border-radius: 4px; height: 24px; overflow: hidden; }
+  .dist-bar-item .bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-size: .7rem; font-weight: 600; }
+  .dist-bar-item .count { width: 28px; text-align: right; color: var(--muted); font-family: 'DM Mono', monospace; font-size: .7rem; }
+
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+  th {
+    font-family: 'DM Mono', monospace;
+    font-size: .63rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: .7rem 1rem;
+    text-align: right;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  th:first-child { text-align: left; }
+  td {
+    padding: .58rem 1rem;
+    text-align: right;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    font-family: 'DM Mono', monospace;
+    font-size: .78rem;
+    color: var(--text);
+  }
+  td:first-child { text-align: left; color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface2); }
+
+  .badge {
+    display: inline-block;
+    padding: .15rem .55rem;
+    border-radius: 999px;
+    font-size: .67rem;
+    font-weight: 600;
+  }
+  .badge-pass { background: rgba(79,206,162,.15); color: var(--accent3); }
+  .badge-fail { background: rgba(249,95,95,.15); color: var(--danger); }
+
+  .freq-pill {
+    display: inline-block;
+    padding: .1rem .45rem;
+    border-radius: 6px;
+    font-size: .72rem;
+  }
+  .freq-ok  { background: rgba(79,206,162,.12); color: var(--accent3); }
+  .freq-low { background: rgba(249,95,95,.12);  color: var(--danger);  }
+
+  .full-card { margin-bottom: 2rem; }
+
+  footer { text-align: center; color: var(--muted); font-size: .75rem; margin-top: 2.5rem; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header>
+    <div class="label">FURG · Teoria da Contabilidade</div>
+    <h1>Relatório <em>1º Bimestre</em></h1>
+    <p class="subtitle">56 alunos · Dados até 23/04 · 16 aulas · Média mínima de aprovação: <strong>7,0</strong></p>
+  </header>
+
+  <div class="kpi-row" id="kpis"></div>
+
+  <div class="charts-row">
+    <div class="card">
+      <div class="card-title">Distribuição — Nota Final 1BIM</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#4fcea2"></div>Aprovado (≥7)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f95f5f"></div>Reprovado (&lt;7)</div>
+      </div>
+      <canvas id="chartDist" height="210"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">Trabalhos vs Prova I</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#4fcea2"></div>Aprovado (≥7)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f95f5f"></div>Reprovado (&lt;7)</div>
+      </div>
+      <canvas id="chartScatter" height="210"></canvas>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="card">
+      <div class="card-title">Distribuição de Frequência</div>
+      <canvas id="chartFreq" height="220"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">Alunos por Faixa de Nota Final</div>
+      <div class="dist-bar-wrap" id="distBars"></div>
+    </div>
+  </div>
+
+  <div class="card full-card">
+    <div class="card-title">Detalhamento por Aluno — ordenado por nota final (decrescente)</div>
+    <div class="table-wrap">
+      <table id="tbl">
+        <thead>
+          <tr>
+            <th>Matrícula</th>
+            <th>Frequência</th>
+            <th>Presenças</th>
+            <th>Trabalhos</th>
+            <th>Prova I</th>
+            <th>Nota Final</th>
+            <th>Situação</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>FURG · Teoria da Contabilidade · 1º Bimestre · Aprovação mínima: 7,0</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const RAW = [
+  [175068,93.33,15,8.24,5.80,6.53],[175140,73.33,12,8.83,4.00,5.45],
+  [177260,100,16,8.91,7.80,8.13],[175083,100,16,8.89,9.10,9.04],
+  [175085,86.67,14,9.07,6.70,7.41],[177262,73.33,12,6.99,6.10,6.37],
+  [177249,100,16,8.56,7.40,7.75],[164162,100,16,8.33,4.10,5.37],
+  [175148,100,16,9.30,7.60,8.11],[171797,80,13,9.00,6.60,7.32],
+  [164166,73.33,12,8.80,4.40,5.72],[178066,100,16,5.88,3.40,4.14],
+  [164135,93.33,15,7.79,4.60,5.56],[177241,100,16,7.89,4.90,5.80],
+  [156671,100,16,9.72,4.00,5.72],[180183,86.67,14,9.31,6.20,7.13],
+  [178054,93.33,15,9.64,8.80,9.05],[156657,86.67,14,8.29,4.80,5.85],
+  [175130,86.67,14,9.09,3.20,4.97],[164167,86.67,14,4.42,3.10,3.50],
+  [166618,100,16,7.22,7.50,7.42],[145312,73.33,12,8.13,4.90,5.87],
+  [175123,86.67,14,7.96,4.60,5.61],[181794,100,16,9.33,0.00,2.80],
+  [157316,86.67,14,7.83,4.60,5.57],[169022,86.67,14,1.67,3.30,2.81],
+  [171807,73.33,12,8.57,3.70,5.16],[177239,80,13,7.68,4.30,5.32],
+  [162067,100,16,7.83,7.50,7.60],[170798,86.67,14,7.43,2.80,4.19],
+  [175076,100,16,9.18,7.90,8.29],[175082,100,16,9.63,5.70,6.88],
+  [175108,100,16,8.75,7.90,8.16],[177270,100,16,9.44,5.90,6.96],
+  [170762,86.67,14,7.81,4.80,5.70],[164884,100,16,8.12,3.90,5.17],
+  [175097,100,16,8.89,5.10,6.24],[175125,100,16,9.05,0.00,2.71],
+  [178063,100,16,7.93,5.40,6.16],[168985,100,16,9.35,5.40,6.59],
+  [166651,100,16,7.56,3.90,5.00],[175114,100,16,9.30,9.80,9.65],
+  [177277,100,16,8.85,5.60,6.58],[170774,100,16,6.89,6.10,6.34],
+  [113361,60,10,4.38,2.70,3.20],[177240,100,16,9.89,6.70,7.66],
+  [175127,100,16,8.72,0.00,2.62],[178052,100,16,7.72,9.50,8.97],
+  [175081,100,16,8.51,7.80,8.01],[142911,100,16,5.70,4.10,4.58],
+  [177243,100,16,8.83,0.00,2.65],[162069,93.33,15,7.48,6.80,7.00],
+  [178061,100,16,6.20,3.50,4.31],[177244,86.67,14,8.46,0.00,2.54],
+  [175095,86.67,14,8.22,0.00,2.47],
+];
+
+const PASS = 7.0;
+const data = RAW.map(r=>({ mat:r[0], freq:r[1], pres:r[2], trab:r[3], prova:r[4], final:r[5] }));
+const finals = data.map(d=>d.final);
+const freqs  = data.map(d=>d.freq);
+const n = data.length;
+const avg = v => v.reduce((a,b)=>a+b,0)/v.length;
+const pass = data.filter(d=>d.final>=PASS).length;
+const fail = n - pass;
+const repFreq = data.filter(d=>d.freq<75).length;
+const taxaAprov = ((pass/n)*100).toFixed(0);
+function fmt(v){ return v.toFixed(2).replace('.',','); }
+
+// KPIs
+const kpiData = [
+  { label:'Total de Alunos',      value: n,           color:'var(--accent)'  },
+  { label:'Média da Turma',       value: fmt(avg(finals)), color:'var(--accent)'  },
+  { label:'Aprovados (≥7)',       value: pass,         color:'var(--accent3)' },
+  { label:'Reprovados (<7)',      value: fail,         color:'var(--danger)'  },
+  { label:'Taxa de Aprovação',    value: taxaAprov+'%',color:'var(--accent3)' },
+  { label:'Freq. abaixo de 75%', value: repFreq,      color:'var(--warn)'    },
+];
+const kpiEl = document.getElementById('kpis');
+kpiData.forEach(k=>{
+  kpiEl.innerHTML += `<div class="kpi" style="--kpi-color:${k.color}">
+    <div class="kpi-value">${k.value}</div>
+    <div class="kpi-label">${k.label}</div>
+  </div>`;
+});
+
+Chart.defaults.color = '#8898b8';
+Chart.defaults.borderColor = '#2a3347';
+Chart.defaults.font.family = "'DM Mono', monospace";
+Chart.defaults.font.size = 11;
+
+// Histogram — color by pass/fail threshold 7
+const bins      = [0,2,4,5,6,7,8,9,10];
+const binLabels = ['0–2','2–4','4–5','5–6','6–7','7–8','8–9','9–10'];
+const binPass   = [false,false,false,false,false,true,true,true]; // >=7 starts at bin index 5
+const binColors = binPass.map(p => p ? '#4fcea2' : '#f95f5f');
+const binCounts = binLabels.map((_,i)=>
+  finals.filter(v=>v>=bins[i] && v<bins[i+1]).length
+);
+
+new Chart(document.getElementById('chartDist'), {
+  type:'bar',
+  data:{
+    labels: binLabels,
+    datasets:[{
+      data: binCounts,
+      backgroundColor: binColors.map(c=>c+'bb'),
+      borderColor: binColors,
+      borderWidth: 1,
+      borderRadius: 6,
+    }]
+  },
+  options:{
+    plugins:{ legend:{ display:false } },
+    scales:{
+      y:{ grid:{ color:'#2a334744' }, ticks:{ stepSize:1 } },
+      x:{ grid:{ display:false } }
+    }
+  }
+});
+
+// Scatter Trabalhos x Prova
+new Chart(document.getElementById('chartScatter'), {
+  type:'scatter',
+  data:{
+    datasets:[
+      {
+        label:'Aprovado',
+        data: data.filter(d=>d.final>=PASS).map(d=>({x:d.trab,y:d.prova})),
+        backgroundColor:'rgba(79,206,162,.75)',
+        pointRadius:5, pointHoverRadius:7,
+      },
+      {
+        label:'Reprovado',
+        data: data.filter(d=>d.final<PASS).map(d=>({x:d.trab,y:d.prova})),
+        backgroundColor:'rgba(249,95,95,.75)',
+        pointRadius:5, pointHoverRadius:7,
+      }
+    ]
+  },
+  options:{
+    plugins:{
+      legend:{ display:false },
+      tooltip:{ callbacks:{ label: ctx=>`Trab: ${ctx.parsed.x.toFixed(2)}  Prova: ${ctx.parsed.y.toFixed(2)}` } }
+    },
+    scales:{
+      x:{ title:{ display:true, text:'Trabalhos', color:'#8898b8' }, grid:{ color:'#2a334744' }, min:0, max:10 },
+      y:{ title:{ display:true, text:'Prova I',   color:'#8898b8' }, grid:{ color:'#2a334744' }, min:0, max:10 }
+    }
+  }
+});
+
+// Frequency histogram
+const freqBins   = ['60–70%','70–80%','80–90%','90–99%','100%'];
+const freqRanges = [[60,70],[70,80],[80,90],[90,99.99],[100,100]];
+const fColors    = ['#f95f5f','#f9c84f','#4f9cf9','#4f9cf9','#4fcea2'];
+const freqCounts = freqRanges.map(([lo,hi])=>
+  freqs.filter(f=>f>=lo && (hi===100 ? f===100 : f<hi)).length
+);
+new Chart(document.getElementById('chartFreq'), {
+  type:'bar',
+  data:{
+    labels: freqBins,
+    datasets:[{
+      data: freqCounts,
+      backgroundColor: fColors.map(c=>c+'aa'),
+      borderColor: fColors,
+      borderWidth:1, borderRadius:6,
+    }]
+  },
+  options:{
+    plugins:{ legend:{ display:false } },
+    scales:{
+      y:{ grid:{ color:'#2a334744' }, ticks:{ stepSize:2 } },
+      x:{ grid:{ display:false } }
+    }
+  }
+});
+
+// Horizontal dist bars
+const faixas = [
+  { range:'0,0 – 2,9', lo:0, hi:3,    color:'#f95f5f' },
+  { range:'3,0 – 4,9', lo:3, hi:5,    color:'#f97b4f' },
+  { range:'5,0 – 6,9', lo:5, hi:7,    color:'#f9c84f' },
+  { range:'7,0 – 8,9', lo:7, hi:9,    color:'#4fcea2' },
+  { range:'9,0 – 10',  lo:9, hi:10.1, color:'#4f9cf9' },
+];
+const dbEl = document.getElementById('distBars');
+const maxC = Math.max(...faixas.map(f=>finals.filter(v=>v>=f.lo&&v<f.hi).length));
+faixas.forEach(f=>{
+  const cnt = finals.filter(v=>v>=f.lo&&v<f.hi).length;
+  const pct = cnt===0 ? 4 : Math.max(8, (cnt/maxC*100));
+  dbEl.innerHTML += `<div class="dist-bar-item">
+    <span class="range">${f.range}</span>
+    <div class="bar-track">
+      <div class="bar-fill" style="width:${pct}%;background:${f.color}33;color:${f.color};">${cnt} aluno${cnt!==1?'s':''}</div>
+    </div>
+    <span class="count">${cnt}</span>
+  </div>`;
+});
+
+// Table
+const tbody = document.querySelector('#tbl tbody');
+[...data].sort((a,b)=>b.final-a.final).forEach(d=>{
+  const sit = d.final>=PASS
+    ? `<span class="badge badge-pass">Aprovado</span>`
+    : `<span class="badge badge-fail">Reprovado</span>`;
+  const nc  = d.final>=PASS ? 'var(--accent3)' : 'var(--danger)';
+  const fc  = d.freq<75 ? 'freq-low' : 'freq-ok';
+  tbody.innerHTML += `<tr>
+    <td>${d.mat}</td>
+    <td><span class="freq-pill ${fc}">${d.freq.toFixed(0)}%</span></td>
+    <td>${d.pres}/16</td>
+    <td>${fmt(d.trab)}</td>
+    <td>${fmt(d.prova)}</td>
+    <td style="font-weight:600;color:${nc}">${fmt(d.final)}</td>
+    <td>${sit}</td>
+  </tr>`;
+});
+</script>
+</body>
+</html>
